@@ -1,0 +1,79 @@
+﻿<!DOCTYPE html>
+<html ng-app="chords-app">
+    <head>
+        <title>Chord.directory</title>
+        <meta name="keywords" content="guitar, guitar chords, chord finder, chord chart, chord directory" />
+        <meta name="description" content="Simple online guitar chord directory for guitarists" />
+        <meta name="viewport" content="initial-scale=1, maximum-scale=1">
+        <link href="//fonts.googleapis.com/css?family=Amatic+SC|Open+Sans:300" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+        <link type="text/css" href="Styles/Site.css" rel="Stylesheet" />
+    </head>
+    <body>
+        <div class="container-fluid" ng-controller="ChordsCtrl">
+            <div class="row">
+                <div class="col-md-3 controls">
+                    <div class="controls-bg">
+                        <h1>Chords</h1>
+                        <p class="center-text">Total chords: <span class="badge">{{chords.length}}</span></p>
+                        <form role="form" class="form-horizontal">
+                            <div class="form-group">
+                                <div class="col-md-8 col-md-offset-2">
+                                    <input class="form-control" type="text" placeholder="search" ng-model="selectedChord" typeahead="chord.name for chord in chords | filter:{name:$viewValue}:startsWith | limitTo:10" typeahead-on-select="setChord($item)" typeahead-wait-ms="100">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-md-8 col-md-offset-2">
+                                    <select class="form-control" ng-options="tuning as tuning.n for tuning in tunings" ng-model="tuning" ng-change="retune(tuning)"></select>
+                                </div>
+                            </div>
+                            <div class="form-group center-text">
+                                <button class="btn btn-default btn-xs btn-clear" type="button" ng-click="reset()">clear</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div class="col-md-9 fingerboard hidden-xs">
+                    <div id="neck-outer">
+                        <div id="neck">
+                            <div ng-repeat="t in getTimes(stringCount) track by $index" class="str{{$index+1}}">
+                                <div class="openMute">
+                                    <div class="setMute" ng-click="setCell(-2, $index)" ng-class="{muted: selectedNotes[$index] === -2, valid: isValid(-2, $index)}">x</div>
+                                    <div class="setOpen" ng-click="setCell(0, $index)" ng-class="{open: selectedNotes[$index] === 0, valid: isValid(0, $index)}">o</div>
+                                </div>
+                                <div ng-repeat="t in getTimes(12) track by $index" ng-click="setCell($index + 1, $parent.$index)" ng-class="{valid: isValid($index + 1, $parent.$index), selected: isSelected($index+1, $parent.$index), barre: isBarre($index+1, $parent.$index)}" data-fret="{{$index+1}}" data-string="{{$parent.$index}}" class="fret{{$index+1}}">
+                                    <span class="note"></span>
+                                </div>
+                                <span class="string{{$index + 1}}" ng-class="{muted: isMuted($index), open: isOpen($index)}"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <ul class="chord-list" ng-if="active">
+                        <li ng-repeat="c in filteredChords">
+                        {{c.name}} - {{c.desc}} - notes: {{c.notes}}
+                        </li>
+                    </ul>
+                </div>
+                <div class="col-xs-12 visible-xs mobile-result">
+                    <span ng-repeat="n in selectedNotes track by $index">{{n|parseMute}}</span>
+                </div>
+                <p class="attrib">A project by <a href="http://www.nathanw.com.au">this guy</a></p>
+
+            </div>
+        </div>
+        <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.0/angular.min.js"></script>
+        <script src="Scripts/ui-bootstrap-custom-tpls-0.10.0.min.js"></script>
+        <script src="//underscorejs.org/underscore-min.js"></script>
+        <script src="Scripts/chords.js"></script>
+        <script>
+            (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+            })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+            
+            ga('create', 'UA-52375669-1', 'auto');
+            ga('send', 'pageview');
+            
+        </script>
+    </body>
+</html>
